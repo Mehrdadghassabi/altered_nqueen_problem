@@ -59,12 +59,6 @@ def fit_population(population, board, n):
     return nfit_population
 
 
-def merge_two_list(li1, li2):
-    for el in li2:
-        li1.append(el)
-    return li1
-
-
 def pair_random(parent_pool):
     parent_pairs = []
     while len(parent_pool) != 0:
@@ -79,7 +73,7 @@ def pair_random(parent_pool):
     return parent_pairs
 
 
-def recombination(parents_pair, Pc):
+def recombination(board, parents_pair, Pc):
     off_springs = []
     for parents in parents_pair:
         if random.uniform(0, 1) < Pc:
@@ -109,19 +103,48 @@ def mutation(offsprings, board, Pm):
     return offsprings
 
 
-def EA1(board,laambda,mio,Pc,Pm):
-    popu = generate_population(board, laambda)
-    fit_popu = fit_population(popu, board, laambda)
+def population_fitnesses(board, population):
+    fitnesses = []
+    for individual in population:
+        indi_phen = genotype_phenotype_remapping(individual)
+        fitnesses.append(fitness(board, indi_phen))
+    return fitnesses
+
+
+def chromosome_validity(board, chromosome):
+    validity = True
+    for sol_pos in board.soldiers_position:
+        for queen_pos in chromosome:
+            if sol_pos[0] == queen_pos[0] and sol_pos[1] == queen_pos[1]:
+                validity = False
+    return validity
+
+
+def remove_invalid_chromosome(board, offspr):
+    nosp = []
+    for chromosome in offspr:
+        osp = genotype_phenotype_remapping(chromosome)
+        if chromosome_validity(board, osp):
+            nosp.append(phenotype_genotype_mapping(osp))
+    return nosp
+
+
+def EA1(board, laambda, mio, Pc, Pm):
+    best_fond_individual = []
+    population = generate_population(board, laambda)
+    population = fit_population(population, board, laambda)
     generation = 1
     found = False
     while generation <= 300 and not found:
-        best_fond_individual = genotype_phenotype_remapping(fit_popu[0])
-        best_fond_individual_fitness = fitness(board, best_fond_individual)
-        parent_pool = random.sample(fit_popu, mio)
+        best_fond_individual = genotype_phenotype_remapping(population[0])
+        fitnesses = population_fitnesses(board, population)
+        best_fond_individual_fitness = fitnesses[0]
+        parent_pool = random.sample(population, mio)
         parent_pairs = pair_random(parent_pool)
-        offspr = recombination(parent_pairs, Pc)
+        offspr = recombination(board, parent_pairs, Pc)
         offspr = mutation(offspr, board, Pm)
-        fit_popu = fit_population(merge_two_list(fit_popu, offspr), board, laambda)
+        offspr = remove_invalid_chromosome(board, offspr)
+        population = fit_population(population + offspr, board, laambda)
         print("=======================================================================================================")
         print("generation: " + str(generation))
         print("best_fond_individual: " + str(best_fond_individual))
@@ -130,3 +153,4 @@ def EA1(board,laambda,mio,Pc,Pm):
         if board.max_fitness() == best_fond_individual_fitness:
             found = True
         generation += 1
+    return best_fond_individual
