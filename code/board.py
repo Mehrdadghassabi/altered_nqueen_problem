@@ -9,6 +9,10 @@ class board():
         self.soldiers_position, self.soldiers_point = dg.unpack_soldiers_info(self.soldiers_info, boardSize)
         self.boardSize = boardSize
 
+    def get_defaults(self):
+        self.soldiers_position, self.soldiers_point = dg.unpack_soldiers_info(self.soldiers_info, self.boardSize)
+        return self.soldiers_point
+
     def visualize(self, queens_position):
         vis.visualize(board_size=self.boardSize, soldiers_position=self.soldiers_position,
                       queens_position=queens_position)

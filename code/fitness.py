@@ -118,4 +118,5 @@ def fitness(board, queens_position):
     for val in soldiers_point.values():
         if val[1]:
             fitness += val[0]
+    soldiers_point = board.get_defaults()
     return fitness

@@ -130,15 +130,15 @@ def remove_invalid_chromosome(board, offspr):
 
 
 def EA1(board, laambda, mio, Pc, Pm):
-    best_fond_individual = []
+    best_found_individual = []
     population = generate_population(board, laambda)
     population = fit_population(population, board, laambda)
     generation = 1
     found = False
     while generation <= 300 and not found:
-        best_fond_individual = genotype_phenotype_remapping(population[0])
+        best_found_individual = genotype_phenotype_remapping(population[0])
         fitnesses = population_fitnesses(board, population)
-        best_fond_individual_fitness = fitnesses[0]
+        best_found_individual_fitness = fitnesses[0]
         parent_pool = random.sample(population, mio)
         parent_pairs = pair_random(parent_pool)
         offspr = recombination(board, parent_pairs, Pc)
@@ -147,10 +147,10 @@ def EA1(board, laambda, mio, Pc, Pm):
         population = fit_population(population + offspr, board, laambda)
         print("=======================================================================================================")
         print("generation: " + str(generation))
-        print("best_fond_individual: " + str(best_fond_individual))
-        print("best_fond_individual_fitness: " + str(best_fond_individual_fitness))
+        print("best_fond_individual: " + str(best_found_individual))
+        print("best_fond_individual_fitness: " + str(best_found_individual_fitness))
         print("maximum possible fitness: " + str(board.max_fitness()))
-        if board.max_fitness() == best_fond_individual_fitness:
+        if board.max_fitness() == best_found_individual_fitness:
             found = True
         generation += 1
-    return best_fond_individual
+    return best_found_individual
